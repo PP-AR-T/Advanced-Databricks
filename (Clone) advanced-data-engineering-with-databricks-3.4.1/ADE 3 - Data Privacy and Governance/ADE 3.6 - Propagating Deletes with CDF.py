@@ -364,6 +364,11 @@ query.awaitTermination()
 # COMMAND ----------
 
 # MAGIC %sql
+# MAGIC SELECT user_id FROM deletes
+
+# COMMAND ----------
+
+# MAGIC %sql
 # MAGIC DESCRIBE HISTORY users
 
 # COMMAND ----------

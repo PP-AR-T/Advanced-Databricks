@@ -70,7 +70,7 @@ df.display()
  .write
  .mode('overwrite')
  .option("overwriteSchema", "true")
- .partitionBy('id')
+ .partitionBy('id') #
  .saveAsTable("iot_data")
 )
 

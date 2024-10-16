@@ -488,7 +488,7 @@ for stream in spark.streams.active:
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC SELECT * FROM silver WHERE mrn = 14125426
+# MAGIC SELECT * FROM gold WHERE mrn = 14125426
 
 # COMMAND ----------
 

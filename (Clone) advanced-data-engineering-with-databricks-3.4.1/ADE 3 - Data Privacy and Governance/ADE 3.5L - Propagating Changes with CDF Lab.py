@@ -49,20 +49,30 @@
 
 # COMMAND ----------
 
-# TODO
-# <FILL-IN>
+# MAGIC %sql
+# MAGIC ALTER TABLE user_lookup SET TBLPROPERTIES (delta.enableChangeDataFeed = true);
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC
-# MAGIC
 # MAGIC ## Read the CDF output from table
 # MAGIC
 # MAGIC To read the CDF data:
 # MAGIC - Set up a streaming read on the **`user_lookup`** table
 # MAGIC - Configure the stream to enable reading change data
 # MAGIC - Configure the stream to start reading from version 1 of the **`user_lookup`** table
+
+
+# COMMAND ----------
+
+user_lookup_df = (
+    spark.readStream
+    .format("delta")
+    .option("readChangeFeed", "true")
+    .option("startingVersion", 1)
+    .table("user_lookup")
+)
+
+display(user_lookup_df)
 
 # COMMAND ----------
 
@@ -80,8 +90,13 @@ user_lookup_df = (FILL_IN)
 
 # COMMAND ----------
 
-# TODO
-# <FILL-IN>
+# MAGIC %sql
+# MAGIC SELECT * FROM user_lookup WHERE user_id = 49661
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC DELETE FROM user_lookup WHERE user_id = 49661
 
 # COMMAND ----------
 
@@ -94,8 +109,8 @@ user_lookup_df = (FILL_IN)
 
 # COMMAND ----------
 
-# TODO
-# <FILL-IN>
+# MAGIC %sql
+# MAGIC SELECT * FROM user_lookup WHERE user_id = 49661
 
 # COMMAND ----------
 
@@ -110,14 +125,38 @@ user_lookup_df = (FILL_IN)
 
 # COMMAND ----------
 
+# MAGIC %sql
+# MAGIC CREATE OR REPLACE TEMPORARY VIEW user_lookup_deletes AS
+# MAGIC SELECT *
+# MAGIC FROM table_changes("user_lookup", 1)
+# MAGIC WHERE _change_type = 'delete';
+# MAGIC
 
-# CREATE OR REPLACE TEMPORARY VIEW FILL_IN 
+# COMMAND ----------
 
-# MERGE INTO users u
-# USING FILL_IN
+# MAGIC %sql
+# MAGIC -- Step 2: Select all records in the view where _change_type is delete
+# MAGIC SELECT * FROM user_lookup_deletes;
 
-# MERGE INTO user_bins ub
-# USING FILL_IN
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC -- Step 3: Merge into users table when alt_id gets matched
+# MAGIC MERGE INTO users AS target
+# MAGIC USING user_lookup_deletes AS source
+# MAGIC ON target.alt_id = source.alt_id
+# MAGIC WHEN MATCHED THEN
+# MAGIC   DELETE
+# MAGIC
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC MERGE INTO user_bins AS target
+# MAGIC USING user_lookup_deletes AS source
+# MAGIC ON target.user_id = source.user_id
+# MAGIC WHEN MATCHED THEN
+# MAGIC delete
 
 # COMMAND ----------
 

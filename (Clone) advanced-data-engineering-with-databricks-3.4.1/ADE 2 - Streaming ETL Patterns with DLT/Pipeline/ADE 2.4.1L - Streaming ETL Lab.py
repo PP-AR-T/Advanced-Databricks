@@ -100,6 +100,7 @@ rules = {
 
 @dlt.table (
     table_properties= {"quality" : "silver"}
+)
 @dlt.expect_all_or_drop(rules)
 def workouts_silver():
     return (
@@ -119,11 +120,12 @@ def workouts_silver():
 
 # COMMAND ----------
 
+quarantine_rules = {"invalid_record": f"NOT({' AND '.join(rules.values())})"}
 @dlt.table
+@dlt.expect_all_or_drop(quarantine_rules)
 def workouts_quarantine():
     return (
         dlt.read_stream("workouts_bronze")
-        .filter(F.col("user_id").isNull() | F.col("workout_id").isNull())
     )
 
 # COMMAND ----------
